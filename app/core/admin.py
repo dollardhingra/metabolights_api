@@ -1,3 +1,9 @@
 from django.contrib import admin
+from .models import Keyword, Publication, Study, StudyFile, Author
 
-# Register your models here.
+
+admin.site.register(Keyword)
+admin.site.register(Publication)
+admin.site.register(Study)
+admin.site.register(StudyFile)
+admin.site.register(Author)
