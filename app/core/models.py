@@ -1,4 +1,16 @@
 from django.db import models
+import uuid
+import os
+
+from study.validators import FileValidator
+
+
+def get_studyfile_path(instance, filename):
+    """Generate file path for new study file"""
+    ext = filename.split('.')[-1]
+    filename = f'{uuid.uuid4()}.{ext}'
+
+    return os.path.join('uploads/studyfiles/', filename)
 
 
 class Keyword(models.Model):
@@ -37,11 +49,13 @@ class Study(models.Model):
 
 class StudyFile(models.Model):
     title = models.CharField(max_length=255)
-    file = models.FileField()
+    file = models.FileField(upload_to=get_studyfile_path, validators=[FileValidator()])
     study = models.ForeignKey(Study, on_delete=models.CASCADE)
+    size_kb = models.FloatField()
 
     def __str__(self):
         return f"{self.title}"
+
 
 
 

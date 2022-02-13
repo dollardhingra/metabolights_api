@@ -125,3 +125,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+
+STATIC_ROOT = '/vol/web/static'
+MEDIA_ROOT = '/vol/web/media'
+
+STUDYFILE_MAX_SIZE = 1024 * 1024  # 1MB
+STUDYFILE_ALLOWED_TYPES = ('text/plain', 'text/csv', )
+

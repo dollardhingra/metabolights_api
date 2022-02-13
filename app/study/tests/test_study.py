@@ -1,3 +1,7 @@
+import tempfile
+import os
+from unittest.mock import patch
+
 from django.urls import reverse
 from django.test import TestCase
 
@@ -10,12 +14,17 @@ from .test_keywords import sample_keyword
 from ..serializers import StudySerializer
 from author.tests.test_authors import sample_author
 
+from core.models import get_studyfile_path
+
 STUDY_URL = reverse('study:study-list')
 
 
 def detail_url(study_id):
     """Return study detail URL"""
     return reverse('study:study-detail', args=[study_id])
+
+
+STUDYFILE_URL = reverse('study:studyfile-list')
 
 
 def sample_study(title, abstract):
@@ -39,7 +48,6 @@ class StudyApiTests(TestCase):
     def test_list_studies(self):
         """Test retrieving studies"""
         sample_study("Biology Study", "this is an abstract")
-        sample_study("Biotech Study", "this is another abstract")
 
         res = self.client.get(STUDY_URL)
 
@@ -48,7 +56,7 @@ class StudyApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
-    def test_create_study_successful(self):
+    def test_create_study_empty_publication_successful(self):
         """Test that study is created successfully"""
 
         keyword1 = sample_keyword("keyword1")
@@ -131,3 +139,25 @@ class StudyApiTests(TestCase):
         ).exists()
 
         self.assertFalse(exists)
+
+    @patch('uuid.uuid4')
+    def test_rstudyfile_file_name_uuid(self, mock_uuid):
+        """Test that image is saved in the correct location"""
+        uuid = 'test-uuid'
+        mock_uuid.return_value = uuid
+        file_path = get_studyfile_path(None, 'file.csv')
+
+        exp_path = f'uploads/studyfiles/{uuid}.csv'
+        self.assertEqual(file_path, exp_path)
+
+    def test_studyfile_upload(self):
+        """test uploading a file to study"""
+        with tempfile.NamedTemporaryFile(suffix='.csv') as csvfile:
+            csvfile.write(b'test')
+            csvfile.flush()
+            res = self.client.post(
+                STUDYFILE_URL, {'file': csvfile}, format='multipart'
+            )
+
+            self.assertEqual(res.status_code, status.HTTP_200_OK)
+            self.assertIn('file', res.data)
