@@ -1,10 +1,8 @@
 from django.db import models
 
-# Create your models here.
-
 
 class Keyword(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.title
@@ -20,7 +18,7 @@ class Publication(models.Model):
 
 class Author(models.Model):
     full_name = models.CharField(max_length=255)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
 
     def __str__(self):
         return f"{self.full_name} ({self.email})"
@@ -28,7 +26,7 @@ class Author(models.Model):
 
 class Study(models.Model):
     title = models.CharField(max_length=255)
-    absract = models.TextField()
+    abstract = models.TextField()
     keywords = models.ManyToManyField(Keyword)
     publications = models.ManyToManyField(Publication, blank=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
@@ -41,6 +39,9 @@ class StudyFile(models.Model):
     title = models.CharField(max_length=255)
     file = models.FileField()
     study = models.ForeignKey(Study, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.title}"
 
 
 

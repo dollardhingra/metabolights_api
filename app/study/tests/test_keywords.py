@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import TestCase
 
@@ -9,11 +8,20 @@ from core.models import Keyword
 
 from ..serializers import KeywordSerializer
 
+KEYWORD_URL = reverse('study:keyword-list')
 
-KEYWORDS_URL = reverse('study:keyword-list')
+
+def detail_url(keyword_id):
+    """Return keyword detail URL"""
+    return reverse('study:keyword-detail', args=[keyword_id])
 
 
-class KeywordsApiTests(TestCase):
+def sample_keyword(title):
+    """create and return a sample keyword"""
+    return Keyword.objects.create(title=title)
+
+
+class KeywordApiTests(TestCase):
     """Test the APIs of Keyword model"""
 
     def setUp(self):
@@ -21,20 +29,20 @@ class KeywordsApiTests(TestCase):
 
     def test_list_keywords(self):
         """Test retrieving keywords"""
-        Keyword.objects.create(title="keyword1")
-        Keyword.objects.create(title="keyword2")
+        sample_keyword("keyword1")
+        sample_keyword("keyword2")
 
-        res = self.client.get(KEYWORDS_URL)
+        res = self.client.get(KEYWORD_URL)
 
         keywords = Keyword.objects.all()
         serializer = KeywordSerializer(keywords, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
-    def test_keyword_create_successful(self):
+    def test_create_keyword_successful(self):
         """Test that keyword is created successfully"""
-        payload = {"title": "keyword_test"}
-        self.client.post(KEYWORDS_URL, payload)
+        payload = {"title": "new keyword"}
+        self.client.post(KEYWORD_URL, payload)
         exists = Keyword.objects.filter(
             title=payload['title']
         ).exists()
@@ -43,7 +51,49 @@ class KeywordsApiTests(TestCase):
     def test_create_keyword_invalid(self):
         """Test creating a new keyword with invalid payload"""
         payload = {'title': ''}
-        res = self.client.post(KEYWORDS_URL, payload)
+        res = self.client.post(KEYWORD_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_update_keyword_successful(self):
+        """Test updating a keyword"""
+        keyword = sample_keyword("old keyword")
+        payload = {"title": "new keyword"}
+
+        self.client.put(detail_url(str(keyword.id)), payload)
+        keyword.refresh_from_db()
+        exists = Keyword.objects.filter(
+            title=payload['title']
+        ).exists()
+
+        self.assertTrue(exists)
+
+    def test_update_keyword_invalid(self):
+        """Test updating keyword with invalid details"""
+        keyword = sample_keyword("old keyword")
+        res = self.client.put(detail_url(str(keyword.id)), {})
+        keyword.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_partial_update_keyword_successful(self):
+        """Test partial updating an keyword"""
+        keyword = sample_keyword("old keyword")
+        payload = {"title": "new keyword"}
+
+        self.client.patch(detail_url(str(keyword.id)), payload)
+        keyword.refresh_from_db()
+        exists = Keyword.objects.filter(
+            title=payload['title']
+        ).exists()
+
+        self.assertTrue(exists)
+
+    def test_delete_keyword_successful(self):
+        keyword = sample_keyword("existing keyword")
+        self.client.delete(detail_url(str(keyword.id)))
+
+        exists = Keyword.objects.filter(
+            title="existing keyword"
+        ).exists()
+
+        self.assertFalse(exists)

@@ -6,6 +6,7 @@ from . import views
 
 router = DefaultRouter()
 router.register('keywords', views.KeywordViewSet)
+router.register('', views.StudyViewSet)
 
 app_name = 'study'
 

@@ -1,19 +1,32 @@
-from core.models import Keyword
+from core.models import Keyword, Study
 from rest_framework import viewsets, mixins
 
-from .serializers import KeywordSerializer
+from .serializers import KeywordSerializer, StudySerializer
 
 
 class KeywordViewSet(
     viewsets.GenericViewSet,
     mixins.ListModelMixin,
-    mixins.CreateModelMixin
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin
 ):
     """Manage Keywords in the DB"""
 
     queryset = Keyword.objects.all()
     serializer_class = KeywordSerializer
 
-    def perform_create(self, serializer):
-        """create a new keyword"""
-        serializer.save()
+
+class StudyViewSet(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin
+):
+    """manage study in the DB"""
+
+    queryset = Study.objects.all()
+    serializer_class = StudySerializer

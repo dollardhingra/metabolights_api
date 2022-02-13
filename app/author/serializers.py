@@ -9,4 +9,10 @@ class AuthorSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Author
-        fields = ('full_name', 'email')
+        fields = ('id', 'full_name', 'email')
+
+
+# class AuthorDetailSerializer(AuthorSerializer):
+#     """Serialize a recipe detail"""
+#     ingredients = IngredientSerializer(many=True, read_only=True)
+#     tags = TagSerializer(many=True, read_only=True)
