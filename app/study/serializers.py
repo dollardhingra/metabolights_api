@@ -68,17 +68,3 @@ class StudyFileDetailSerializer(StudyFileSerializer):
     """
 
     study = StudyDetailSerializer(read_only=True)
-
-    # def validate(self, validated_data):
-    #     print(validated_data['file'].size)
-    #     validated_data['size_kb'] = int(validated_data['file'].size)
-    #     return validated_data
-    #
-    # def create(self, validated_data):
-    #     self.validate(validated_data)
-    #     return StudyFile.objects.create(**validated_data)
-    #
-    # def update(self, instance, validated_data):
-    #     self.validate(validated_data)
-    #     return StudyFile.objects.update(**validated_data)
-

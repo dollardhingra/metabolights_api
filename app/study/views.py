@@ -75,6 +75,14 @@ class StudyFileViewSet(
     queryset = StudyFile.objects.all()
     serializer_class = StudyFileSerializer
 
+    def get_queryset(self):
+        study = self.request.query_params.get("study")
+        queryset = self.queryset
+        if study:
+            queryset = queryset.filter(study=study)
+
+        return queryset
+
     def get_serializer_class(self):
         """Return appropriate serializer class"""
         if self.action == "retrieve":

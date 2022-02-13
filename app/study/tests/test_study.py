@@ -149,15 +149,3 @@ class StudyApiTests(TestCase):
 
         exp_path = f'uploads/studyfiles/{uuid}.csv'
         self.assertEqual(file_path, exp_path)
-
-    def test_studyfile_upload(self):
-        """test uploading a file to study"""
-        with tempfile.NamedTemporaryFile(suffix='.csv') as csvfile:
-            csvfile.write(b'test')
-            csvfile.flush()
-            res = self.client.post(
-                STUDYFILE_URL, {'file': csvfile}, format='multipart'
-            )
-
-            self.assertEqual(res.status_code, status.HTTP_200_OK)
-            self.assertIn('file', res.data)
